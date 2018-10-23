@@ -6,7 +6,7 @@ The solver uses the algorithm outlined in [http://norvig.com/sudoku.html](http:/
 
 ## Building
 
-The project is built with sbt 1.2.4, which you'll need to install.  See [https://www.scala-sbt.org/download.html](https://www.scala-sbt.org/download.html).
+The project is built with sbt 1.2.4, which you'll need to install.  See [https://www.scala-sbt.org/1.x/docs/Setup.html](https://www.scala-sbt.org/1.x/docs/Setup.html).
 
 You'll also need to have Java 8 installed.
 
