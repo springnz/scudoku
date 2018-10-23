@@ -18,10 +18,24 @@ These are output to `<project_root>/target/universal/stage/bin/`.
 
 # Running
 
-The script has its own arguments, so arguments to be passed to scudoku must follow a `--`. e.g.
+To run the app, execute one of the generated scripts from the command-line, e.g.
 
-`target/universal/stage/bin/scudoku -- generate -o generated.txt`
-`target/universal/stage/bin/scudoku -- solve -i generated.txt`
+`target/universal/stage/bin/scudoku`.
 
+As you will see, you need to specify some options to do anything useful.
 
-The application can also be run via sbt, e.g. `sbt "run generate"`
+`target/universal/stage/bin/scudoku -h` shows the help text for the wrapper script, which includes various options, mainly related to the JVM.
+
+To pass options to scudoku, you ned to add a `--` before the options. e.g.
+
+`target/universal/stage/bin/scudoku -- -h` shows the scudoku help  
+`target/universal/stage/bin/scudoku -- generate` generates a puzzle and writes it to std out  
+`target/universal/stage/bin/scudoku -- generate -o generated.txt` generates a puzzle and writes it to the specified file  
+`target/universal/stage/bin/scudoku -- solve -i generated.txt` solves a puzzle found in the specified file
+
+The application can also be run via sbt, e.g.
+
+`sbt "run -h"`  
+`sbt "run generate"`  
+`sbt "run generate -o generated.txt"`  
+`sbt "run solve -i generated.txt"`
