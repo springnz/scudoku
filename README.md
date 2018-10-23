@@ -6,7 +6,9 @@ The solver uses the algorithm outlined in [http://norvig.com/sudoku.html](http:/
 
 ## Building
 
-The project is built with sbt 1.2.4, which you'll need to install.  See [https://www.scala-sbt.org/download.html](https://www.scala-sbt.org/download.html)
+The project is built with sbt 1.2.4, which you'll need to install.  See [https://www.scala-sbt.org/download.html](https://www.scala-sbt.org/download.html).
+
+You'll also need to have Java 8 installed.
 
 Run `sbt stage` to package the application and produce an executable script: `target/universal/stage/bin/scudoku` (and `scudoku.bat` for windows)
 
