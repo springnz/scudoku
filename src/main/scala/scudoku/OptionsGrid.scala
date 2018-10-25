@@ -2,6 +2,11 @@ package scudoku
 
 import scudoku.model._
 
+/*
+ * Represents a Sudoku grid as the possibilities for each cell, rather than the assigned values.
+ * For instance, in an empty grid, every cell has all values [1,2,3,4,5,6,7,8,9] as possibilities,
+ * whereas for a solved grid, every cell has only one possibility left.
+ */
 final case class OptionsGrid(cells: Map[Cell, CellOptions]) {
 
   def isValid: Boolean =
