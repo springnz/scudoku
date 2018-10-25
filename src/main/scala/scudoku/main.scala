@@ -45,7 +45,7 @@ object main extends App {
             println("Grid to solve:")
             println(grid.toString)
 
-            println("Hit any key to start...")
+            println("Hit <enter> to start...")
             val in = StdIn.readLine()
             println("Solving...")
             val time = System.currentTimeMillis()

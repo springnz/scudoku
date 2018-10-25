@@ -14,15 +14,12 @@ object solver {
         List.empty[Grid]
     }
 
+  // A grid if minimal if removing any value results in multiple possible solutions
   def isMinimal(grid: Grid): Boolean = {
     grid.cells.foldLeft(true) {
       case (minimal, (cell, _)) =>
-        if (!minimal) {
-          minimal
-        } else {
-          OptionsGrid.fromGrid(Grid(grid.cells - cell)).fold(false) { updated =>
-            findSolutions(updated, maxSolutions = 2, randomise = false).size != 1
-          }
+        !minimal || OptionsGrid.fromGrid(Grid(grid.cells - cell)).fold(false) { updated =>
+          findSolutions(updated, maxSolutions = 2, randomise = false).size != 1
         }
     }
   }
@@ -44,7 +41,7 @@ object solver {
             if (found.size >= maxSolutions) {
               found
             } else {
-              val nextGrid = OptionsGrid.assign(grid, cell, x)
+              val nextGrid = grid.assign(cell, x)
               val newSolutions = nextGrid.toList.flatMap(g => findSolutions(g, maxSolutions - found.size, randomise))
               found ++ newSolutions
             }

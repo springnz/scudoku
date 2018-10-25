@@ -24,6 +24,60 @@ final case class OptionsGrid(cells: Map[Cell, CellOptions]) {
     }
   }
 
+  /**
+    * Assign a value to a cell, and eliminate the value from peer cells.
+    *
+    * @param cell the current cell
+    * @param value the value to assign
+    * @return a grid with the value assigned to the cell
+    */
+  def assign(cell: Cell, value: Int): Option[OptionsGrid] = {
+    cells.get(cell).flatMap { currentValue =>
+      val remaining = currentValue.options.filterNot(_ == value)
+      remaining.foldLeft(Option(this)) { (maybeGrid, v) =>
+        maybeGrid.flatMap(g => g.eliminate(cell, v))
+      }
+    }
+  }
+
+  /**
+    * Eliminate a value from the list of possibilities for a cell
+    *
+    * @param cell the current cell
+    * @param value the value to eliminate
+    * @return a grid with the value eliminated
+    */
+  def eliminate(cell: Cell, value: Int): Option[OptionsGrid] = {
+    val options = cells.get(cell).map(_.options).getOrElse(List())
+    if (!options.contains(value)) {
+      Some(OptionsGrid(cells)) // already eliminated
+    } else {
+      val remaining = options.filterNot(_ == value)
+      val updatedGrid = OptionsGrid(cells.updated(cell, CellOptions(remaining)))
+      val updated = remaining match {
+        case Nil => None // trying to eliminate last value
+        case cellValue :: Nil => // Last option for this cell - eliminate the value from peers
+          val peers = cellPeers.getOrElse(cell, List())
+          peers.foldLeft(Option(updatedGrid)) { (maybeGrid, peer) =>
+            maybeGrid.flatMap(g => g.eliminate(peer, cellValue))
+          }
+        case _ => Some(updatedGrid)
+      }
+      updated.flatMap { g =>
+        val units = cellUnits.getOrElse(cell, List())
+        val placesForValue = (for {
+          unit <- units
+          places <- unit.filter(c => g.cells.get(c).map(_.options).getOrElse(List()).contains(value))
+        } yield places).filterNot(c => c == cell)
+        placesForValue match {
+          case Nil => None
+          case place :: Nil => g.assign(place, value)
+          case _ => Some(g)
+        }
+      }
+    }
+  }
+
   def toGrid: Grid = {
     Grid(cells.collect {
       case (cell, CellOptions(fixedValue :: Nil)) => (cell, fixedValue)
@@ -39,51 +93,11 @@ object OptionsGrid {
     val empty = OptionsGrid()
     grid.cells.foldLeft(Option(empty)) { (current, entry) =>
       current.flatMap { g =>
-        assign(g, entry._1, entry._2)
+        g.assign(entry._1, entry._2)
       }
     }
   }
 
   def emptyGrid: OptionsGrid =
     OptionsGrid(allCells.map(cell => (cell, CellOptions(allValues))).toMap)
-
-  def assign(grid: OptionsGrid, cell: Cell, value: Int): Option[OptionsGrid] = {
-    grid.cells.get(cell).flatMap { currentValue =>
-      val remaining = currentValue.options.filterNot(_ == value)
-      remaining.foldLeft(Option(grid)) { (maybeGrid, v) =>
-        maybeGrid.flatMap(g => eliminate(g, cell, v))
-      }
-    }
-  }
-
-  def eliminate(grid: OptionsGrid, cell: Cell, value: Int): Option[OptionsGrid] = {
-    val options = grid.cells.get(cell).map(_.options).getOrElse(List())
-    if (!options.contains(value)) {
-      Some(OptionsGrid(grid.cells)) // already eliminated
-    } else {
-      val remaining = options.filterNot(_ == value)
-      val updatedGrid = OptionsGrid(grid.cells.updated(cell, CellOptions(remaining)))
-      val updated = remaining match {
-        case Nil => None // trying to eliminate last value
-        case cellValue :: Nil => // Last option for this cell - eliminate the value from peers
-          val peers = cellPeers.getOrElse(cell, List())
-          peers.foldLeft(Option(updatedGrid)) { (maybeGrid, peer) =>
-            maybeGrid.flatMap(g => eliminate(g, peer, cellValue))
-          }
-        case _ => Some(updatedGrid)
-      }
-      updated.flatMap { g =>
-        val units = cellUnits.getOrElse(cell, List())
-        val placesForValue = (for {
-          unit <- units
-          places <- unit.filter(c => g.cells.get(c).map(_.options).getOrElse(List()).contains(value))
-        } yield places).filterNot(c => c == cell)
-        placesForValue match {
-          case Nil => None
-          case place :: Nil => assign(g, place, value)
-          case _ => Some(g)
-        }
-      }
-    }
-  }
 }

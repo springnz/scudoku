@@ -1,5 +1,6 @@
 import org.scalatest.{MustMatchers, WordSpec}
-import scudoku.{Grid, parser, solver}
+import scudoku.model.Grid
+import scudoku.parser
 
 class ParserTest extends WordSpec with MustMatchers {
   "parse" when {
